@@ -232,10 +232,55 @@ async function updateEmployee() {
   let [chosenRole] = roles.filter((role) => role.title === roleChoice);
   console.log(chosenEmployee.first_name);
 
-  let query =
-    "UPDATE employee SET role_id=? WHERE employee.first_name AND employee.last_name=?";
-    connection.query(
-   `UPDATE employee SET role_id=${chosenRole.id} WHERE employee.id = ${chosenEmployee.id}`,
+
+  connection.query(
+    `UPDATE employee SET role_id=${chosenRole.id} WHERE employee.id = ${chosenEmployee.id}`,
+    function (err, res) {
+      if (err) {
+        console.log(err);
+      }
+    }
+  );
+
+  loadMainPrompts();
+}
+// ----------------------------------------------------------------------------------------------
+async function UpdateRole() {
+  const employees = await db.getAllEmployees();
+  const roles = await db.getAllRoles();
+
+  let { roleChoice, title, salary } = await prompt([
+    {
+      name: "roleChoice",
+      type: "rawlist",
+      message: "What role would you like to update?",
+      choices: roles.map((roleItem) => roleItem.title),
+    },
+    {
+      name: "title",
+      type: "input",
+      message: "What is the new title?"
+    },
+    {
+      name: "salary",
+      type: "input",
+      message: "What is the updated salary?"
+    },
+  ]);
+
+  let [chosenRole] = roles.filter((role) => role.title === roleChoice);
+
+  
+  connection.query(
+    `UPDATE role SET title = "${title}" WHERE role.id = ${chosenRole.id}`,
+    function (err, res) {
+      if (err) {
+        console.log(err);
+      }
+    }
+  );
+  connection.query(
+    `UPDATE role SET salary= ${salary} WHERE role.id = ${chosenRole.id}`,
     function (err, res) {
       if (err) {
         console.log(err);
