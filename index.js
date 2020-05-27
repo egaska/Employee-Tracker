@@ -93,16 +93,23 @@ async function AddEmployee() {
     },
   ]);
 
+  console.log("employee Role : " + employee_role);
+
   let [chosenManager] = managers.filter(
     (manager) => manager.first_name + " " + manager.last_name == managerChoice
   );
+  let [chosenRole] = roles.filter(
+    (role) => role.title == employee_role
+  );
+  console.log("employee Role : " + chosenRole.title);
+
   console.log(
     "Manager: " + chosenManager.first_name + " " + chosenManager.last_name
   );
   await db.insertEmployee(
     employee_first_name,
     employee_last_name,
-    employee_role.role_id,
+    chosenRole.id,
     chosenManager.role_id
   );
   console.log(
