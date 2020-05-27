@@ -3,7 +3,6 @@ const logo = require("asciiart-logo");
 const db = require("./db");
 require("console.table");
 
-
 //inquirer will go here
 
 init();
@@ -58,6 +57,7 @@ async function addPrompts() {
 }
 
 //Adding Functions
+// ----------------------------------------------------------------------------------------------
 async function AddEmployee() {
   const managers = await db.getAllManagers();
   const roles = await db.getAllRoles();
@@ -70,20 +70,18 @@ async function AddEmployee() {
     {
       name: "employee_first_name",
       type: "input",
-      message: "What is the employee's first name?"
+      message: "What is the employee's first name?",
     },
     {
       name: "employee_last_name",
       type: "input",
-      message: "What is the employee's last name?"
+      message: "What is the employee's last name?",
     },
     {
       name: "employee_role",
       type: "rawlist",
       message: "What is their role?",
-      choices: roles.map(
-        (role) => role.title
-      )
+      choices: roles.map((role) => role.title),
     },
     {
       name: "managerChoice",
@@ -91,14 +89,16 @@ async function AddEmployee() {
       message: "Who is their manager?",
       choices: managers.map(
         (manager) => manager.first_name + " " + manager.last_name
-      )
-    }]
-  );
+      ),
+    },
+  ]);
 
   let [chosenManager] = managers.filter(
     (manager) => manager.first_name + " " + manager.last_name == managerChoice
   );
-  console.log("Manager: " + chosenManager.first_name + " " + chosenManager.last_name);
+  console.log(
+    "Manager: " + chosenManager.first_name + " " + chosenManager.last_name
+  );
   await db.insertEmployee(
     employee_first_name,
     employee_last_name,
@@ -110,33 +110,27 @@ async function AddEmployee() {
   );
   loadMainPrompts();
 }
-
+// ----------------------------------------------------------------------------------------------
 async function addRole() {
   const departments = await db.getAllDepartments();
-  let {
-    title,
-    salary,
-    departmentChoice
-  } = await prompt([
+  let { title, salary, departmentChoice } = await prompt([
     {
       name: "title",
       type: "input",
-      message: "What is the job title?"
+      message: "What is the job title?",
     },
     {
       name: "salary",
       type: "input",
-      message: "What is the salary of this position?"
+      message: "What is the salary of this position?",
     },
     {
       name: "departmentChoice",
       type: "rawlist",
       message: "Which department is this job in?",
-      choices: departments.map(
-        (departmentItem) => departmentItem.name
-      )
-    }]
-  );
+      choices: departments.map((departmentItem) => departmentItem.name),
+    },
+  ]);
   console.log(title);
   console.log(salary);
   console.log(departmentChoice);
@@ -145,15 +139,29 @@ async function addRole() {
     (department) => department.name === departmentChoice
   );
 
-// console.log(chosenDepartment);
+  // console.log(chosenDepartment);
   console.log("Department: " + chosenDepartment.id);
-  await db.insertRole(title, salary, chosenDepartment.id) 
-  console.log(
-    `${title} (${chosenDepartment.id}) added to the database!`
-  );
+  await db.insertRole(title, salary, chosenDepartment.id);
+  console.log(`${title} (${chosenDepartment.id}) added to the database!`);
+  loadMainPrompts();
+}
+// ----------------------------------------------------------------------------------------------
+async function addDepartment() {
+  const departments = await db.getAllDepartments();
+  let { name } = await prompt([
+    {
+      name: "name",
+      type: "input",
+      message: "What is the department's name?",
+    },
+  ]);
+  console.log(name);
+  await db.insertDepartment(name);
+  console.log(`${name} has been added to the database!`);
   loadMainPrompts();
 }
 
+// ----------------------------------------------------------------------------------------------
 //changed this to connection.end
 function quit() {
   console.log("Goodbye!");
@@ -161,7 +169,7 @@ function quit() {
 }
 
 //Load Functions
-
+// ----------------------------------------------------------------------------------------------
 async function loadViewPrompts() {
   const { choice } = await prompt({
     name: "choice",
@@ -180,6 +188,7 @@ async function loadViewPrompts() {
       quit();
   }
 }
+// ----------------------------------------------------------------------------------------------
 async function showEmployee() {
   const employees = await db.getAllEmployees();
 
@@ -188,6 +197,8 @@ async function showEmployee() {
 
   loadMainPrompts();
 }
+// ----------------------------------------------------------------------------------------------
+
 async function showDepartments() {
   const departments = await db.getAllDepartments();
 
@@ -196,6 +207,7 @@ async function showDepartments() {
 
   loadMainPrompts();
 }
+// ----------------------------------------------------------------------------------------------
 async function showRolls() {
   const roles = await db.getAllRoles();
 
