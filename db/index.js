@@ -8,6 +8,9 @@ class DB {
   getAllEmployees() {
     return this.connection.query("SELECT * FROM employee");
   }
+  getAllManagers() {
+    return this.connection.query("SELECT * FROM employee WHERE role_id = 1");
+  }
   getAllRoles() {
     return this.connection.query("SELECT * FROM role");
   }
