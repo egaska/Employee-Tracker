@@ -137,9 +137,9 @@ async function AddEmployee() {
   let [chosenManager] = managers.filter(
     (manager) => manager.first_name + " " + manager.last_name == managerChoice
   );
-
-  console.log("employee Role : " + chosenRole.title);
-
+  let [chosenRole] = roles.filter(
+    (role) => role.title == employee_role
+  );
   console.log(
     "Manager: " + chosenManager.first_name + " " + chosenManager.last_name
   );
