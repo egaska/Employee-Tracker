@@ -1,6 +1,7 @@
 const { prompt } = require("inquirer");
 const logo = require("asciiart-logo");
 const db = require("./db");
+const connection = require("./db/connection");
 require("console.table");
 
 //inquirer will go here
@@ -29,8 +30,8 @@ async function loadMainPrompts() {
       return loadViewPrompts();
     case "ADD":
       return addPrompts();
-    case "BID":
-      return addBid();
+    case "UPDATE":
+      return updatePrompts();
     case "EXIT":
       quit();
   }
@@ -51,6 +52,44 @@ async function addPrompts() {
       return addRole();
     case "Department":
       return addDepartment();
+    case "EXIT":
+      quit();
+  }
+}
+
+async function addPrompts() {
+  const { choice } = await prompt({
+    name: "choice",
+    type: "list",
+    message: "Which would you like to add to?",
+    choices: ["Employee", "Role", "Department", "EXIT"],
+  });
+
+  switch (choice) {
+    case "Employee":
+      return AddEmployee();
+    case "Role":
+      return addRole();
+    case "Department":
+      return addDepartment();
+    case "EXIT":
+      quit();
+  }
+}
+
+async function updatePrompts() {
+  const { choice } = await prompt({
+    name: "choice",
+    type: "list",
+    message: "Which would you like to update?",
+    choices: ["Employee", "Role", "EXIT"],
+  });
+
+  switch (choice) {
+    case "Employee":
+      return updateEmployee();
+    case "Role":
+      return UpdateRole();
     case "EXIT":
       quit();
   }
@@ -98,9 +137,7 @@ async function AddEmployee() {
   let [chosenManager] = managers.filter(
     (manager) => manager.first_name + " " + manager.last_name == managerChoice
   );
-  let [chosenRole] = roles.filter(
-    (role) => role.title == employee_role
-  );
+
   console.log("employee Role : " + chosenRole.title);
 
   console.log(
@@ -154,17 +191,58 @@ async function addRole() {
 }
 // ----------------------------------------------------------------------------------------------
 async function addDepartment() {
-  const departments = await db.getAllDepartments();
   let { name } = await prompt([
     {
       name: "name",
       type: "input",
-      message: "What is the department's name?",
+      message: "What would you like to update the name to?",
     },
   ]);
   console.log(name);
   await db.insertDepartment(name);
   console.log(`${name} has been added to the database!`);
+  loadMainPrompts();
+}
+// ----------------------------------------------------------------------------------------------
+async function updateEmployee() {
+  const employees = await db.getAllEmployees();
+  const roles = await db.getAllRoles();
+
+  let { employeeName, roleChoice } = await prompt([
+    {
+      name: "employeeName",
+      type: "rawlist",
+      message: "Which employee do you want to update?",
+      choices: employees.map(
+        (employeeItem) => employeeItem.first_name + " " + employeeItem.last_name
+      ),
+    },
+    {
+      name: "roleChoice",
+      type: "rawlist",
+      message: "What is the employee's new role?",
+      choices: roles.map((roleItem) => roleItem.title),
+    },
+  ]);
+  console.log(employeeName);
+  let [chosenEmployee] = employees.filter(
+    (employee) =>
+      employee.first_name + " " + employee.last_name === employeeName
+  );
+  let [chosenRole] = roles.filter((role) => role.title === roleChoice);
+  console.log(chosenEmployee.first_name);
+
+  let query =
+    "UPDATE employee SET role_id=? WHERE employee.first_name AND employee.last_name=?";
+    connection.query(
+   `UPDATE employee SET role_id=${chosenRole.id} WHERE employee.id = ${chosenEmployee.id}`,
+    function (err, res) {
+      if (err) {
+        console.log(err);
+      }
+    }
+  );
+
   loadMainPrompts();
 }
 
